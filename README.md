@@ -11,6 +11,14 @@
 
 ---
 
+## 💡 Inspiration
+
+The inspiration behind **Iskor-App** came from **Peeeweee**, who wanted to have a practical scoreboard for casual noontime or free-time basketball, soccer, and volleyball games. While playing with friends, I noticed how inconvenient it was to remember scores mid-game, especially since there were no referees during these friendly matches. This need for a simple yet reliable scoreboard inspired the creation of Iskor-App — a tool designed to make casual sports more organized and enjoyable.
+
+Anyone can use this software for **manual scoring** during games, as it follows rule-based logic for each supported sport — ensuring fairness and consistency even in informal matches.
+
+We’re also **open to suggestions** from users who want to contribute ideas or features that could improve the app further.
+
 ## ✨ Key Features
 
 * **Multi-Sport Support:** Seamlessly switch between Basketball, Soccer, and Volleyball with sport-specific scoring rules and settings.
