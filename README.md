@@ -1,23 +1,30 @@
 # 🏀 Project: Iskor-App
 
-<img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/07f82c54-3d99-429b-a63e-affe267072ca" />
+<p align="center">
+  <img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/07f82c54-3d99-429b-a63e-affe267072ca" />
+</p>
+
+<p align="center"><strong>Turning Sports Matches into Legendary Showdowns.</strong></p>
 
 <p align="center">
-  <strong>Turning Sports Matches into Legendary Showdowns.</strong>
-</p>
-<p align="center">
   A versatile, multi-sport scoreboard for Basketball, Soccer, and Volleyball — perfect for organizers, coaches, and streamers.
+</p>
+
+<p align="center">
+  <em>An app dedicated to making casual and competitive matches easier to manage, score, and showcase — all in one intuitive platform.</em>
 </p>
 
 ---
 
 ## 💡 Inspiration
 
-The inspiration behind **Iskor-App** came from **Peeeweee**, who wanted to have a practical scoreboard for casual noontime or free-time basketball, soccer, and volleyball games. While playing with friends, I noticed how inconvenient it was to remember scores mid-game, especially since there were no referees during these friendly matches. This need for a simple yet reliable scoreboard inspired the creation of Iskor-App — a tool designed to make casual sports more organized and enjoyable.
+The inspiration behind **Iskor-App** came from **Peeeweee**, who wanted a practical scoreboard for casual noontime or free-time basketball, soccer, and volleyball games. While playing with friends, I noticed how inconvenient it was to remember scores mid-game, especially since there were no referees during these friendly matches. This need for a simple yet reliable scoreboard inspired the creation of Iskor-App — a tool designed to make casual sports more organized and enjoyable.
 
 Anyone can use this software for **manual scoring** during games, as it follows rule-based logic for each supported sport — ensuring fairness and consistency even in informal matches.
 
 We’re also **open to suggestions** from users who want to contribute ideas or features that could improve the app further.
+
+---
 
 ## ✨ Key Features
 
@@ -34,7 +41,7 @@ We’re also **open to suggestions** from users who want to contribute ideas or 
 
 ## 🎨 Themes & Screenshots
 
-The application includes four visually distinct themes to suit your style.
+The application includes four visually distinct themes to suit your preferred style and environment.
 
 ### Themes
 
@@ -105,8 +112,7 @@ Then open your browser and visit:
 
 ## 🤝 Contributing
 
-Contributions are welcome! 🎉
-If you have ideas for improvements or new features, feel free to open an issue or submit a pull request.
+Contributions are welcome! 🎉 If you have ideas for improvements or new features, feel free to open an issue or submit a pull request.
 
 1. **Fork the Project**
 2. **Create your Feature Branch**
