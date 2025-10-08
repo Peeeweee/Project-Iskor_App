@@ -127,5 +127,5 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 ---
 
 <p align="center">
-  Built with ❤️ by <strong>Paulo Delgado</strong> and powered by <strong>React + Vite</strong>.
+  Built by <strong>Paulo Delgado</strong> and powered by <strong>React + Vite</strong>.
 </p>
