@@ -1,9 +1,6 @@
 # 🏀 Project: Iskor-App
 
-<div align="center">
-  <img src=height="821" alt="image" src="https://github.com/user-attachments/assets/9307bb4b-eaf6-4ef8-ba76-0e03a102f6aa" />
-"/>
-</div>
+<img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/07f82c54-3d99-429b-a63e-affe267072ca" />
 
 <p align="center">
   <strong>Turning Sports Matches into Legendary Showdowns.</strong>
