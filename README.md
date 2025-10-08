@@ -130,5 +130,5 @@ See the [LICENSE](LICENSE) file for details.
 ---
 
 <p align="center">
-  Built with ❤️ by <strong>Paulo Delgado</strong> · Powered by <strong>React + Vite</strong>
+  Built with AI by <strong>Paulo Delgado</strong> · Powered by <strong>React + Vite</strong>
 </p>
