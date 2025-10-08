@@ -33,7 +33,8 @@ The application includes four visually distinct themes to suit your style.
 |                                         Viola                                         |                                         Coder                                         |
 | :-----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
 | <img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/3292eff2-5868-4724-b571-cb2cb4b5e673" />
- | <img src="https://i.imgur.com/gK9oN4v.png" alt="Coder Theme Screenshot" width="400"/> |
+ | <img width="1471" height="795" alt="image" src="https://github.com/user-attachments/assets/61e1d324-afd7-4dbb-a521-ee565e33569d" />
+|
 |                                         Light                                         |                                          Dark                                         |
 | <img src="https://i.imgur.com/zW7Z5e8.png" alt="Light Theme Screenshot" width="400"/> |  <img src="https://i.imgur.com/fT7J8Jj.png" alt="Dark Theme Screenshot" width="400"/> |
 
