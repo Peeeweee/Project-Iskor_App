@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project: Iskor-App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&family=Teko:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* --- KEYFRAME ANIMATIONS (UNCHANGED) --- */
+      @keyframes score-update {
+        0% { transform: scale(1); } 30% { transform: scale(1.3); } 60% { transform: scale(0.95); } 100% { transform: scale(1); }
+      }
+      .animate-score-update { animation: score-update 0.4s cubic-bezier(0.2, 1.5, 0.5, 1); }
+      @keyframes slide-in-left { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes winner-card-pop-in { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+      .animate-fade-in { animation: fade-in 0.4s ease-out; }
+      @keyframes modal-scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      .animate-modal-scale-in { animation: modal-scale-in 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+      @keyframes content-slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      .animate-content-slide-up { animation: content-slide-up 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; opacity: 0; }
+      @keyframes archive-fly-out { to { transform: translateX(150%) rotate(15deg) scale(0.8); opacity: 0; } }
+      .animate-archive-fly-out { animation: archive-fly-out 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards; }
+      @keyframes unarchive-fly-out { to { transform: translateX(-150%) rotate(-15deg) scale(0.8); opacity: 0; } }
+      .animate-unarchive-fly-out { animation: unarchive-fly-out 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards; }
+      @keyframes complete-fly-out { to { transform: translateY(-150%) scale(0.8); opacity: 0; } }
+      .animate-complete-fly-out { animation: complete-fly-out 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards; }
+      @keyframes animate-chart-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+      .animate-chart-bar { transform-origin: left; animation: animate-chart-bar 0.7s cubic-bezier(0.5, 0, 0.5, 1) forwards; transition: none; }
+      @keyframes slide-in-bottom { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      .animate-slide-in-bottom { animation: slide-in-bottom 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; opacity: 0; }
+      @keyframes shrink-and-fade { to { transform: scale(0.8); opacity: 0; } }
+      .animate-shrink-and-fade { animation: shrink-and-fade 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards; }
+      @keyframes fade-in-delayed { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-in-delay-1 { animation: fade-in-delayed 0.5s ease-out 0.2s forwards; opacity: 0; }
+      .animate-fade-in-delay-2 { animation: fade-in-delayed 0.5s ease-out 0.4s forwards; opacity: 0; }
+      .animate-fade-in-delay-3 { animation: fade-in-delayed 0.5s ease-out 0.6s forwards; opacity: 0; }
+      .animate-fade-in-delay-4 { animation: fade-in-delayed 0.5s ease-out 0.8s forwards; opacity: 0; }
+      
+      /* --- NEW THEME-SPECIFIC ANIMATIONS --- */
+      @keyframes aurora { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+      @keyframes scanline { to { background-position: 0 200%; } }
+      @keyframes text-flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+      
+      /* --- NEW WINNER MODAL ANIMATIONS --- */
+      @keyframes trophy-bounce-enhanced { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-30px) rotate(5deg); } 60% { transform: translateY(-15px) rotate(-5deg); } }
+      .animate-trophy-bounce-enhanced { animation: trophy-bounce-enhanced 2s ease-in-out infinite; }
+      @keyframes glow { 0% { box-shadow: 0 0 10px -5px var(--winner-glow); } 50% { box-shadow: 0 0 40px 0px var(--winner-glow); } 100% { box-shadow: 0 0 10px -5px var(--winner-glow); } }
+      .animate-glow { animation: glow 4s ease-in-out infinite; }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .sunburst-bg {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+            radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 60%),
+            repeating-conic-gradient(from 0deg, var(--winner-glow) 0deg 5deg, transparent 5deg 15deg);
+        background-position: center center; background-size: cover; opacity: 0.1;
+        animation: spin 60s linear infinite; z-index: 0;
+      }
+      .confetti-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 2; }
+      .confetti {
+        position: absolute; width: 8px; height: 16px; background: var(--winner-glow);
+        top: -20px; opacity: 0; animation: fall 5s linear infinite;
+      }
+      @keyframes fall {
+        from { transform: translateY(0vh) rotate(0deg); opacity: 1; }
+        to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+      }
+
+      /* --- THEME DEFINITIONS --- */
+      :root, html.light {
+        --color-background: #F0F2F5; --color-card: #FFFFFF; --color-card-secondary: #F7F7F8;
+        --color-text: #1C1E21; --color-text-muted: #606770; --color-border: #E0E0E0;
+        --color-brand-blue: #00A8FF; --color-brand-red: #EF4444;
+        --font-sans: 'Inter', sans-serif; --font-mono: 'Roboto Mono', monospace; --font-display: 'Teko', sans-serif;
+      }
+      html.dark {
+        --color-background: #101418; --color-card: #1A1D21; --color-card-secondary: #2C3238;
+        --color-text: #E4E6EB; --color-text-muted: #A8B3CF; --color-border: #30363d;
+      }
+      html.viola {
+        --color-background: #0D0C1D; --color-card: #16152B; --color-card-secondary: #201F3D;
+        --color-text: #E0DDFE; --color-text-muted: #8481A0; --color-border: #312F5D;
+        --color-brand-blue: #9f7aea; --color-brand-red: #ED64A6;
+      }
+      html.coder {
+        --color-background: #020a02;
+        --color-card: rgba(0, 50, 0, 0.3);
+        --color-card-secondary: rgba(0, 70, 0, 0.4);
+        --color-text: #00dd00; /* Slightly less harsh green */
+        --color-text-muted: #00aa00;
+        --color-border: rgba(0, 255, 0, 0.3); /* More subtle border */
+        --color-brand-blue: #00ef00;
+        --color-brand-red: #FF4141;
+        --font-sans: 'Roboto Mono', monospace;
+        --font-mono: 'Roboto Mono', monospace;
+        --font-display: 'Teko', sans-serif; /* Restore Teko for display elements */
+      }
+      
+      /* --- GLOBAL STYLES & TRANSITIONS --- */
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--color-background);
+        color: var(--color-text);
+      }
+      .font-sans { font-family: var(--font-sans); }
+      .font-mono { font-family: var(--font-mono); }
+      .font-display { font-family: var(--font-display); }
+      *, *::before, *::after {
+        transition-property: color, background-color, border-color, fill, stroke, opacity, box-shadow, transform;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 200ms;
+      }
+
+      /* --- THEME-SPECIFIC EFFECTS --- */
+      /* VIOLA THEME: Aurora Background */
+      html.viola body { position: relative; }
+      html.viola body::before, html.viola body::after {
+        content: ''; position: fixed; z-index: -1; top: 50%; left: 50%;
+        width: 200vw; height: 200vh; transform: translate(-50%, -50%);
+        background: radial-gradient(circle at center, rgba(128, 0, 128, 0.2) 0, transparent 30%),
+                    radial-gradient(circle at center, rgba(0, 0, 255, 0.2) 0, transparent 30%);
+        background-size: 200% 200%;
+        animation: aurora 20s linear infinite;
+        will-change: background-position;
+      }
+      html.viola body::after { animation-direction: reverse; animation-duration: 30s; }
+      html.viola .card-glow-on-hover:hover { transform: translateY(-4px); box-shadow: 0 0 25px -5px rgba(159, 122, 234, 0.4); }
+      
+      /* GRADIENT TEXTS */
+      .text-gradient-viola { background-image: linear-gradient(to bottom right, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .text-gradient-dark { background-image: linear-gradient(to bottom right, #00A8FF, #0077B6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .text-gradient-coder { background-image: linear-gradient(to bottom right, #39FF14, #00aa00); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .text-gradient-light { background-image: linear-gradient(to bottom right, #00A8FF, #005f8d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+      /* CODER THEME: Matrix/Terminal Effects */
+      html.coder body {
+        background-image: linear-gradient(rgba(0, 255, 0, 0.04) 1px, transparent 1px), linear-gradient(to right, rgba(0, 255, 0, 0.04) 1px, transparent 1px);
+        background-size: 25px 25px;
+        background-position: -1px -1px;
+        text-shadow: 0 0 4px rgba(0, 221, 0, 0.3);
+      }
+      html.coder h1, html.coder h2, html.coder h3, html.coder .font-bold {
+          text-shadow: 0 0 6px rgba(0, 221, 0, 0.5);
+      }
+      html.coder body::after {
+        content: ' '; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+        background-size: 100% 4px; z-index: 9999; pointer-events: none;
+        animation: scanline 8s linear infinite;
+        opacity: 0.7; /* Make scanlines a bit more subtle */
+      }
+      html.coder .shadow-lg, html.coder .shadow-xl, html.coder .shadow-2xl {
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.1), 0 0 5px rgba(0, 255, 0, 0.15);
+        border: 1px solid var(--color-border);
+      }
+      html.coder .card-glow-on-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0 25px -5px rgba(0, 255, 0, 0.3), 0 0 8px rgba(0, 255, 0, 0.25);
+        border-color: rgba(0, 255, 0, 0.6);
+      }
+      html.coder .flicker { animation: text-flicker 3s linear infinite; }
+      
+      /* FIX: Force dark text on bright green buttons for readability */
+      html.coder .bg-brand-blue,
+      html.coder .bg-green-600,
+      html.coder .final-badge,
+      html.coder .get-started-btn {
+        color: #020a02 !important;
+        text-shadow: none !important;
+        border: 1px solid var(--color-border);
+      }
+      html.coder .bg-brand-blue:hover,
+      html.coder .bg-green-600:hover {
+        background-color: #39FF14 !important;
+      }
+
+      /* Ensure compatibility with dark mode classes used in components */
+      html.coder .dark\\:bg-black {
+        background-color: var(--color-card-secondary) !important;
+      }
+
+      /* Default Card Hovers */
+      .card-glow-on-hover { transition-property: transform, box-shadow; transition-duration: 300ms; }
+      html.light .card-glow-on-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1); }
+      html.dark .card-glow-on-hover:hover { transform: translateY(-4px); box-shadow: 0 0 25px -5px rgba(0, 168, 255, 0.25); }
+
+    </style>
+    <script>
+      (function() {
+        let theme = localStorage.getItem('theme');
+        if (!theme) {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.className = '';
+        document.documentElement.classList.add(theme);
+      })();
+
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              'sans': ['var(--font-sans)', 'sans-serif'],
+              'mono': ['var(--font-mono)', 'monospace'],
+              'display': ['var(--font-display)', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                blue: 'var(--color-brand-blue)',
+                red: 'var(--color-brand-red)',
+              },
+              light: {
+                background: 'var(--color-background)',
+                card: 'var(--color-card)',
+                'card-secondary': 'var(--color-card-secondary)',
+                text: 'var(--color-text)',
+                'text-muted': 'var(--color-text-muted)',
+                border: 'var(--color-border)',
+              },
+              dark: {
+                background: 'var(--color-background)',
+                card: 'var(--color-card)',
+                'card-secondary': 'var(--color-card-secondary)',
+                text: 'var(--color-text)',
+                'text-muted': 'var(--color-text-muted)',
+                border: 'var(--color-border)',
+              }
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^18.3.1/",
+    "react/": "https://aistudiocdn.com/react@^18.3.1/",
+    "react": "https://aistudiocdn.com/react@^18.3.1",
+    "vite": "https://aistudiocdn.com/vite@^5.3.3",
+    "url": "https://aistudiocdn.com/url@^0.11.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.4",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@0.15.0",
+    "jspdf": "https://aistudiocdn.com/jspdf@^2.5.1",
+    "jspdf-autotable": "https://aistudiocdn.com/jspdf-autotable@^3.8.2",
+    "@babel/runtime/": "https://aistudiocdn.com/@babel/runtime@^7.24.7/",
+    "fflate": "https://aistudiocdn.com/fflate@^0.8.2",
+    "components/": "https://aistudiocdn.com/components@^0.1.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
