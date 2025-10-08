@@ -30,27 +30,25 @@ The application includes four visually distinct themes to suit your style.
 
 ### Themes
 
-|                                         Viola                                         |                                         Coder                                         |
-| :-----------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
-| <img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/3292eff2-5868-4724-b571-cb2cb4b5e673" />
- | <img width="1471" height="795" alt="image" src="https://github.com/user-attachments/assets/61e1d324-afd7-4dbb-a521-ee565e33569d" />
-|
-|                                         Light                                         |                                          Dark                                         |
-| <img src="https://i.imgur.com/zW7Z5e8.png" alt="Light Theme Screenshot" width="400"/> |  <img src="https://i.imgur.com/fT7J8Jj.png" alt="Dark Theme Screenshot" width="400"/> |
+|                                                                Viola                                                                |                                                                Coder                                                                |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/3292eff2-5868-4724-b571-cb2cb4b5e673" /> | <img width="1471" height="795" alt="image" src="https://github.com/user-attachments/assets/61e1d324-afd7-4dbb-a521-ee565e33569d" /> |
+|                                                                Light                                                                |                                                                 Dark                                                                |
+| <img width="1465" height="770" alt="image" src="https://github.com/user-attachments/assets/6715c6ba-901a-4a61-b318-5822fd37f93a" /> | <img width="1385" height="780" alt="image" src="https://github.com/user-attachments/assets/bad21b98-bea9-4e43-b169-202e5f3314c8" /> |
 
 ### Application In Action
 
-|                                   Dashboard                                   |                                   Analytics                                   |
-| :---------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
-| <img src="https://i.imgur.com/lM5J5Kx.png" alt="Dashboard View" width="400"/> | <img src="https://i.imgur.com/f9W8e4E.png" alt="Analytics View" width="400"/> |
+|                                                              Dashboard                                                              |                                                              Analytics                                                              |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="1622" height="913" alt="image" src="https://github.com/user-attachments/assets/d06ed878-40b3-4332-9870-377182bdf046" /> | <img width="1458" height="919" alt="image" src="https://github.com/user-attachments/assets/3d573896-c235-4daf-978a-cb5f8e1e29b7" /> |
 
-|                                    Match Setup                                    |                                   Match History                                   |
-| :-------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------: |
-| <img src="https://i.imgur.com/8P5JgL7.png" alt="Match Setup Screen" width="400"/> | <img src="https://i.imgur.com/R3P0q5q.png" alt="Match History View" width="400"/> |
+|                                                             Match Setup                                                             |                                                            Match History                                                            |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="1096" height="766" alt="image" src="https://github.com/user-attachments/assets/5580d017-e484-458f-a29a-89e059815d1d" /> | <img width="1320" height="890" alt="image" src="https://github.com/user-attachments/assets/174a30a9-3b84-40ab-bf87-16114ee2ca7c" /> |
 
-|                                    Settings                                    |                                    Data Management                                    |
-| :----------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------: |
-| <img src="https://i.imgur.com/V7F1h0Q.png" alt="Settings Screen" width="400"/> | <img src="https://i.imgur.com/L2w3J0k.png" alt="Data Management Screen" width="400"/> |
+|                                                               Settings                                                              |                                                           Data Management                                                           |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="1175" height="601" alt="image" src="https://github.com/user-attachments/assets/2b276baf-77d7-4d3a-9379-456cc8f748be" /> | <img width="1313" height="679" alt="image" src="https://github.com/user-attachments/assets/920ade8d-3d64-48f1-8878-65bcba7e5416" /> |
 
 ---
 
