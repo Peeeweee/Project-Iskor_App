@@ -1,7 +1,7 @@
 # 🏀 Project: Iskor-App
 
 <div align="center">
-  <img src="<img width="1430" height="821" alt="image" src="https://github.com/user-attachments/assets/9307bb4b-eaf6-4ef8-ba76-0e03a102f6aa" />
+  <img src=height="821" alt="image" src="https://github.com/user-attachments/assets/9307bb4b-eaf6-4ef8-ba76-0e03a102f6aa" />
 "/>
 </div>
 
