@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { MatchConfig, Theme, View, Match, SavedTeam, Settings, TeamStat, SportDefaultSettings } from './types';
 import { GameStatus, Sport, Font, Layout as UILayout } from './types';
@@ -271,7 +268,7 @@ const App: React.FC = () => {
             const tableOptions = {
                 startY: 60,
                 headStyles: { fillColor: '#16A3B8' },
-                theme: 'grid',
+                theme: 'grid' as const, // FIX: Added 'as const' to assert literal type
                 didDrawPage: (data: any) => { finalY = data.cursor.y; }
             };
 
@@ -542,6 +539,8 @@ const App: React.FC = () => {
                             onUpdateMatchConfig={(newConfig) => handleUpdateMatchConfig(activeMatchId, newConfig)}
                             canUndo={canUndo}
                             canRedo={canRedo}
+                            theme={settings.theme}
+                            toggleTheme={cycleTheme}
                         />;
                     }
                 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Match, MatchConfig, GameState, PauseReason } from '../types';
+import type { Match, MatchConfig, GameState, PauseReason, Theme } from '../types';
 import { GameStatus, Sport } from '../types';
 import Scoreboard from './Scoreboard';
 import ControlPanel from './ControlPanel';
@@ -9,7 +9,6 @@ import WarningIcon from './icons/WarningIcon';
 import MiniAudienceWindow from './MiniAudienceWindow';
 import MatchActions from './MatchActions';
 import MatchResult from './MatchResult';
-import PictureInPictureIcon from './icons/PictureInPictureIcon';
 import FullScreenIcon from './icons/FullScreenIcon';
 import DashboardIcon from './icons/DashboardIcon';
 
@@ -39,6 +38,8 @@ interface MatchViewProps {
     onUpdateMatchConfig: (newConfig: Partial<MatchConfig>) => void;
     canUndo: boolean;
     canRedo: boolean;
+    theme: Theme;
+    toggleTheme: () => void;
 }
 
 const useCountUp = (end: number, duration = 1000) => {
@@ -87,7 +88,7 @@ const ConfettiContainer: React.FC<{ color: string }> = ({ color }) => {
 };
 
 const MatchView: React.FC<MatchViewProps> = (props) => {
-    const { match, matchConfig, gameState, clock, actions, onLeaveMatch, onUpdateMatchConfig, activeMatchId, canUndo, canRedo } = props;
+    const { match, matchConfig, gameState, clock, actions, onLeaveMatch, onUpdateMatchConfig, activeMatchId, canUndo, canRedo, theme, toggleTheme } = props;
     
     const [isFullScreen, setIsFullScreen] = useState(false);
     const fullscreenRef = useRef<HTMLDivElement>(null);
@@ -327,13 +328,6 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
     if (gameState.status === GameStatus.Finished && !isWinnerOverlayVisible) {
         return (
             <div className="p-4 md:p-6 w-full animate-fade-in">
-                {isMiniAudienceOpen && (
-                    <MiniAudienceWindow
-                        config={matchConfig}
-                        matchId={activeMatchId}
-                        onClose={() => setIsMiniAudienceOpen(false)}
-                    />
-                )}
                  <div className="w-full max-w-7xl mx-auto relative">
                      <button onClick={onLeaveMatch} className="absolute top-0 -left-2 md:-left-4 text-light-text-muted hover:text-light-text dark:text-dark-text-muted dark:hover:text-dark-text flex items-center gap-2 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -348,9 +342,6 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
                         </div>
                         <BoxScore gameState={gameState} matchConfig={matchConfig} />
                         <div className="mt-8 flex justify-center items-center gap-4">
-                             <button onClick={() => setIsMiniAudienceOpen(true)} className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform hover:scale-105">
-                                <PictureInPictureIcon /> Project
-                            </button>
                              <button onClick={toggleFullScreen} className="flex items-center gap-2 bg-brand-blue hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform hover:scale-105">
                                 <FullScreenIcon /> Audience View
                             </button>
@@ -385,6 +376,8 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
                         config={matchConfig}
                         matchId={activeMatchId}
                         onClose={() => setIsMiniAudienceOpen(false)}
+                        theme={theme}
+                        toggleTheme={toggleTheme}
                     />
                 )}
                 {gameState.notification && (

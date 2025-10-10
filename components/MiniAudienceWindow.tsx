@@ -11,6 +11,8 @@ interface MiniAudienceWindowProps {
     config: MatchConfig;
     matchId: string;
     onClose: () => void;
+    theme: Theme;
+    toggleTheme: (e: React.MouseEvent) => void;
 }
 
 const useDraggable = (ref: React.RefObject<HTMLDivElement>) => {
@@ -63,17 +65,13 @@ const useDraggable = (ref: React.RefObject<HTMLDivElement>) => {
 };
 
 
-const MiniAudienceWindow: React.FC<MiniAudienceWindowProps> = ({ config, matchId, onClose }) => {
+const MiniAudienceWindow: React.FC<MiniAudienceWindowProps> = ({ config, matchId, onClose, theme, toggleTheme }) => {
     const windowRef = useRef<HTMLDivElement>(null);
     const { position, onMouseDown } = useDraggable(windowRef);
     const [isMinimized, setIsMinimized] = useState(false);
     const lastSizeRef = useRef({ width: 480, height: 270 });
-    const [theme, setTheme] = useState<Theme>('dark');
-
-    const toggleTheme = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setTheme(t => t === 'dark' ? 'light' : 'dark');
-    };
+    
+    const isDarkTheme = ['dark', 'viola', 'coder'].includes(theme);
 
     const toggleMinimize = () => {
         const element = windowRef.current;
@@ -112,7 +110,7 @@ const MiniAudienceWindow: React.FC<MiniAudienceWindowProps> = ({ config, matchId
                 </div>
                 <div className="flex items-center gap-1">
                     <button onClick={toggleTheme} className="p-1 rounded-full hover:bg-dark-border text-dark-text-muted hover:text-dark-text" title="Toggle Theme">
-                        {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+                        {isDarkTheme ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
                     </button>
                     <button onClick={toggleMinimize} className="p-1 rounded-full hover:bg-dark-border text-dark-text-muted hover:text-dark-text" title={isMinimized ? 'Restore' : 'Minimize'}>
                         {isMinimized ? <RestoreIcon /> : <MinimizeIcon />}

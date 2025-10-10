@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-// FIX: Import the 'Match' type to resolve the 'Cannot find name 'Match'' error.
 import type { MatchConfig, GameState, Theme, Match, Font } from '../types';
 import { Sport, Layout, GameStatus } from '../types';
-import SunIcon from './icons/SunIcon';
-import MoonIcon from './icons/MoonIcon';
 import ExitIcon from './icons/ExitIcon';
 
 interface AudienceViewProps {
@@ -264,11 +261,16 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
     
     const periodLabel = config.sport === Sport.Volleyball ? 'SET' : 'PERIOD';
     const { gameState, time: liveTime } = liveData;
+    const isFinished = gameState.status === GameStatus.Finished;
 
     const scoreA = gameState.teamA.score;
     const scoreB = gameState.teamB.score;
 
-    const effectiveLayout = dimensions.width < 450 ? Layout.Compact : layout;
+    const effectiveLayout = isFinished
+        ? Layout.Wide // ALWAYS use Wide layout for finished matches
+        : dimensions.width < 450
+        ? Layout.Compact
+        : layout;
 
     const layoutClasses = {
         [Layout.Wide]: 'grid-cols-1 grid-rows-[1fr_auto_1fr] md:grid-rows-1 md:grid-cols-[1fr_auto_1fr]',
@@ -277,7 +279,7 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
     
     const containerClasses = `w-full h-full flex items-center justify-center relative overflow-hidden rounded-lg ${themeClasses}`;
     
-    const timeToDisplay = gameState.status === GameStatus.Finished ? 0 : liveTime;
+    const timeToDisplay = isFinished ? 0 : liveTime;
 
     return (
         <div ref={containerRef} className={containerClasses}>
@@ -291,7 +293,7 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
             )}
 
             <div className={`w-full h-full p-2 sm:p-4 grid gap-2 sm:gap-4 ${layoutClasses[effectiveLayout]}`}>
-                 {gameState.status === GameStatus.Finished && <div className="final-badge">FINAL</div>}
+                 {isFinished && <div className="final-badge">FINAL</div>}
                 {gameState.pauseReason && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
                         <h1 
@@ -305,43 +307,52 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
 
                 <AnimatedTeamScore 
                     name={gameState.teamA.name} 
-                    score={isVolleyball ? (gameState.setScores?.a ?? 0) : scoreA} 
+                    score={isVolleyball && !isFinished ? (gameState.setScores?.a ?? 0) : scoreA}
                     color={config.teamA.color} 
                     font={font} 
                     styles={{ name: responsiveStyles.name, score: responsiveStyles.score, pointsContainer: responsiveStyles.pointsContainer, pointsLabel: responsiveStyles.pointsLabel, pointsScore: responsiveStyles.pointsScore }}
-                    isVolleyball={isVolleyball}
-                    pointScore={isVolleyball ? gameState.teamA.score : undefined}
+                    isVolleyball={isVolleyball && !isFinished}
+                    pointScore={isVolleyball && !isFinished ? gameState.teamA.score : undefined}
                 />
 
                 <div className={`flex flex-col items-center justify-center ${clockBgClass} p-4 rounded-lg text-white`}>
-                    <div 
-                      className={`font-bold leading-none font-${font}`}
-                      style={responsiveStyles.time}
-                    >
-                      {formatTime(timeToDisplay)}
-                    </div>
-                    <div 
-                      className={`font-semibold uppercase tracking-widest mt-2 font-${font}`}
-                      style={responsiveStyles.period}
-                    >
-                        {periodLabel} {gameState.currentPeriod}
-                    </div>
-                    <div
-                        className={`font-semibold uppercase tracking-wider mt-1 opacity-70 font-${font}`}
-                        style={responsiveStyles.sportName}
-                    >
-                        {config.sport}
-                    </div>
+                    {isFinished ? (
+                        <>
+                            <div className={`font-bold leading-none font-${font}`} style={responsiveStyles.time}>VS</div>
+                            <div className={`font-semibold uppercase tracking-widest mt-2 font-${font}`} style={responsiveStyles.period}>FINAL</div>
+                        </>
+                    ) : (
+                        <>
+                             <div 
+                                className={`font-bold leading-none font-${font}`}
+                                style={responsiveStyles.time}
+                            >
+                                {formatTime(timeToDisplay)}
+                            </div>
+                            <div 
+                                className={`font-semibold uppercase tracking-widest mt-2 font-${font}`}
+                                style={responsiveStyles.period}
+                            >
+                                {periodLabel} {gameState.currentPeriod}
+                            </div>
+                        </>
+                    )}
+                     <div
+                         className={`font-semibold uppercase tracking-wider mt-1 opacity-70 font-${font}`}
+                         style={responsiveStyles.sportName}
+                     >
+                         {config.sport}
+                     </div>
                 </div>
 
                 <AnimatedTeamScore 
-                    name={gameState.teamB.name} 
-                    score={isVolleyball ? (gameState.setScores?.b ?? 0) : scoreB} 
+                    name={gameState.teamB.name}
+                    score={isVolleyball && !isFinished ? (gameState.setScores?.b ?? 0) : scoreB}
                     color={config.teamB.color} 
                     font={font} 
                     styles={{ name: responsiveStyles.name, score: responsiveStyles.score, pointsContainer: responsiveStyles.pointsContainer, pointsLabel: responsiveStyles.pointsLabel, pointsScore: responsiveStyles.pointsScore }}
-                    isVolleyball={isVolleyball}
-                    pointScore={isVolleyball ? gameState.teamB.score : undefined}
+                    isVolleyball={isVolleyball && !isFinished}
+                    pointScore={isVolleyball && !isFinished ? gameState.teamB.score : undefined}
                 />
             </div>
         </div>
