@@ -107,7 +107,6 @@ project_-iskor-app
 │   ├── App.tsx
 │   └── components
 │       └── AnalyticsPage.tsx
-├── tempCodeRunnerFile.py
 ├── tsconfig.json
 ├── types.ts
 ├── utils.ts
@@ -142,9 +141,6 @@ dist-ssr
 --- END FILE: .gitignore ---
 
 --- START FILE: App.tsx ---
-
-
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { MatchConfig, Theme, View, Match, SavedTeam, Settings, TeamStat, SportDefaultSettings } from './types';
 import { GameStatus, Sport, Font, Layout as UILayout } from './types';
@@ -415,7 +411,7 @@ const App: React.FC = () => {
             const tableOptions = {
                 startY: 60,
                 headStyles: { fillColor: '#16A3B8' },
-                theme: 'grid',
+                theme: 'grid' as const, // FIX: Added 'as const' to assert literal type
                 didDrawPage: (data: any) => { finalY = data.cursor.y; }
             };
 
@@ -686,6 +682,8 @@ const App: React.FC = () => {
                             onUpdateMatchConfig={(newConfig) => handleUpdateMatchConfig(activeMatchId, newConfig)}
                             canUndo={canUndo}
                             canRedo={canRedo}
+                            theme={settings.theme}
+                            toggleTheme={cycleTheme}
                         />;
                     }
                 }
@@ -1220,11 +1218,8 @@ export default AnalyticsPage;
 
 --- START FILE: components\AudienceView.tsx ---
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-// FIX: Import the 'Match' type to resolve the 'Cannot find name 'Match'' error.
 import type { MatchConfig, GameState, Theme, Match, Font } from '../types';
 import { Sport, Layout, GameStatus } from '../types';
-import SunIcon from './icons/SunIcon';
-import MoonIcon from './icons/MoonIcon';
 import ExitIcon from './icons/ExitIcon';
 
 interface AudienceViewProps {
@@ -1485,11 +1480,16 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
     
     const periodLabel = config.sport === Sport.Volleyball ? 'SET' : 'PERIOD';
     const { gameState, time: liveTime } = liveData;
+    const isFinished = gameState.status === GameStatus.Finished;
 
     const scoreA = gameState.teamA.score;
     const scoreB = gameState.teamB.score;
 
-    const effectiveLayout = dimensions.width < 450 ? Layout.Compact : layout;
+    const effectiveLayout = isFinished
+        ? Layout.Wide // ALWAYS use Wide layout for finished matches
+        : dimensions.width < 450
+        ? Layout.Compact
+        : layout;
 
     const layoutClasses = {
         [Layout.Wide]: 'grid-cols-1 grid-rows-[1fr_auto_1fr] md:grid-rows-1 md:grid-cols-[1fr_auto_1fr]',
@@ -1498,7 +1498,7 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
     
     const containerClasses = `w-full h-full flex items-center justify-center relative overflow-hidden rounded-lg ${themeClasses}`;
     
-    const timeToDisplay = gameState.status === GameStatus.Finished ? 0 : liveTime;
+    const timeToDisplay = isFinished ? 0 : liveTime;
 
     return (
         <div ref={containerRef} className={containerClasses}>
@@ -1512,7 +1512,7 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
             )}
 
             <div className={`w-full h-full p-2 sm:p-4 grid gap-2 sm:gap-4 ${layoutClasses[effectiveLayout]}`}>
-                 {gameState.status === GameStatus.Finished && <div className="final-badge">FINAL</div>}
+                 {isFinished && <div className="final-badge">FINAL</div>}
                 {gameState.pauseReason && (
                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
                         <h1 
@@ -1526,43 +1526,52 @@ const AudienceView: React.FC<AudienceViewProps> = ({ config, matchId, onExit, th
 
                 <AnimatedTeamScore 
                     name={gameState.teamA.name} 
-                    score={isVolleyball ? (gameState.setScores?.a ?? 0) : scoreA} 
+                    score={isVolleyball && !isFinished ? (gameState.setScores?.a ?? 0) : scoreA}
                     color={config.teamA.color} 
                     font={font} 
                     styles={{ name: responsiveStyles.name, score: responsiveStyles.score, pointsContainer: responsiveStyles.pointsContainer, pointsLabel: responsiveStyles.pointsLabel, pointsScore: responsiveStyles.pointsScore }}
-                    isVolleyball={isVolleyball}
-                    pointScore={isVolleyball ? gameState.teamA.score : undefined}
+                    isVolleyball={isVolleyball && !isFinished}
+                    pointScore={isVolleyball && !isFinished ? gameState.teamA.score : undefined}
                 />
 
                 <div className={`flex flex-col items-center justify-center ${clockBgClass} p-4 rounded-lg text-white`}>
-                    <div 
-                      className={`font-bold leading-none font-${font}`}
-                      style={responsiveStyles.time}
-                    >
-                      {formatTime(timeToDisplay)}
-                    </div>
-                    <div 
-                      className={`font-semibold uppercase tracking-widest mt-2 font-${font}`}
-                      style={responsiveStyles.period}
-                    >
-                        {periodLabel} {gameState.currentPeriod}
-                    </div>
-                    <div
-                        className={`font-semibold uppercase tracking-wider mt-1 opacity-70 font-${font}`}
-                        style={responsiveStyles.sportName}
-                    >
-                        {config.sport}
-                    </div>
+                    {isFinished ? (
+                        <>
+                            <div className={`font-bold leading-none font-${font}`} style={responsiveStyles.time}>VS</div>
+                            <div className={`font-semibold uppercase tracking-widest mt-2 font-${font}`} style={responsiveStyles.period}>FINAL</div>
+                        </>
+                    ) : (
+                        <>
+                             <div 
+                                className={`font-bold leading-none font-${font}`}
+                                style={responsiveStyles.time}
+                            >
+                                {formatTime(timeToDisplay)}
+                            </div>
+                            <div 
+                                className={`font-semibold uppercase tracking-widest mt-2 font-${font}`}
+                                style={responsiveStyles.period}
+                            >
+                                {periodLabel} {gameState.currentPeriod}
+                            </div>
+                        </>
+                    )}
+                     <div
+                         className={`font-semibold uppercase tracking-wider mt-1 opacity-70 font-${font}`}
+                         style={responsiveStyles.sportName}
+                     >
+                         {config.sport}
+                     </div>
                 </div>
 
                 <AnimatedTeamScore 
-                    name={gameState.teamB.name} 
-                    score={isVolleyball ? (gameState.setScores?.b ?? 0) : scoreB} 
+                    name={gameState.teamB.name}
+                    score={isVolleyball && !isFinished ? (gameState.setScores?.b ?? 0) : scoreB}
                     color={config.teamB.color} 
                     font={font} 
                     styles={{ name: responsiveStyles.name, score: responsiveStyles.score, pointsContainer: responsiveStyles.pointsContainer, pointsLabel: responsiveStyles.pointsLabel, pointsScore: responsiveStyles.pointsScore }}
-                    isVolleyball={isVolleyball}
-                    pointScore={isVolleyball ? gameState.teamB.score : undefined}
+                    isVolleyball={isVolleyball && !isFinished}
+                    pointScore={isVolleyball && !isFinished ? gameState.teamB.score : undefined}
                 />
             </div>
         </div>
@@ -4467,7 +4476,7 @@ export default MatchResult;
 
 --- START FILE: components\MatchView.tsx ---
 import React, { useState, useEffect, useRef } from 'react';
-import type { Match, MatchConfig, GameState, PauseReason } from '../types';
+import type { Match, MatchConfig, GameState, PauseReason, Theme } from '../types';
 import { GameStatus, Sport } from '../types';
 import Scoreboard from './Scoreboard';
 import ControlPanel from './ControlPanel';
@@ -4477,7 +4486,6 @@ import WarningIcon from './icons/WarningIcon';
 import MiniAudienceWindow from './MiniAudienceWindow';
 import MatchActions from './MatchActions';
 import MatchResult from './MatchResult';
-import PictureInPictureIcon from './icons/PictureInPictureIcon';
 import FullScreenIcon from './icons/FullScreenIcon';
 import DashboardIcon from './icons/DashboardIcon';
 
@@ -4507,6 +4515,8 @@ interface MatchViewProps {
     onUpdateMatchConfig: (newConfig: Partial<MatchConfig>) => void;
     canUndo: boolean;
     canRedo: boolean;
+    theme: Theme;
+    toggleTheme: () => void;
 }
 
 const useCountUp = (end: number, duration = 1000) => {
@@ -4555,7 +4565,7 @@ const ConfettiContainer: React.FC<{ color: string }> = ({ color }) => {
 };
 
 const MatchView: React.FC<MatchViewProps> = (props) => {
-    const { match, matchConfig, gameState, clock, actions, onLeaveMatch, onUpdateMatchConfig, activeMatchId, canUndo, canRedo } = props;
+    const { match, matchConfig, gameState, clock, actions, onLeaveMatch, onUpdateMatchConfig, activeMatchId, canUndo, canRedo, theme, toggleTheme } = props;
     
     const [isFullScreen, setIsFullScreen] = useState(false);
     const fullscreenRef = useRef<HTMLDivElement>(null);
@@ -4795,13 +4805,6 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
     if (gameState.status === GameStatus.Finished && !isWinnerOverlayVisible) {
         return (
             <div className="p-4 md:p-6 w-full animate-fade-in">
-                {isMiniAudienceOpen && (
-                    <MiniAudienceWindow
-                        config={matchConfig}
-                        matchId={activeMatchId}
-                        onClose={() => setIsMiniAudienceOpen(false)}
-                    />
-                )}
                  <div className="w-full max-w-7xl mx-auto relative">
                      <button onClick={onLeaveMatch} className="absolute top-0 -left-2 md:-left-4 text-light-text-muted hover:text-light-text dark:text-dark-text-muted dark:hover:text-dark-text flex items-center gap-2 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -4816,9 +4819,6 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
                         </div>
                         <BoxScore gameState={gameState} matchConfig={matchConfig} />
                         <div className="mt-8 flex justify-center items-center gap-4">
-                             <button onClick={() => setIsMiniAudienceOpen(true)} className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform hover:scale-105">
-                                <PictureInPictureIcon /> Project
-                            </button>
                              <button onClick={toggleFullScreen} className="flex items-center gap-2 bg-brand-blue hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform hover:scale-105">
                                 <FullScreenIcon /> Audience View
                             </button>
@@ -4853,6 +4853,8 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
                         config={matchConfig}
                         matchId={activeMatchId}
                         onClose={() => setIsMiniAudienceOpen(false)}
+                        theme={theme}
+                        toggleTheme={toggleTheme}
                     />
                 )}
                 {gameState.notification && (
@@ -4952,6 +4954,8 @@ interface MiniAudienceWindowProps {
     config: MatchConfig;
     matchId: string;
     onClose: () => void;
+    theme: Theme;
+    toggleTheme: (e: React.MouseEvent) => void;
 }
 
 const useDraggable = (ref: React.RefObject<HTMLDivElement>) => {
@@ -5004,17 +5008,13 @@ const useDraggable = (ref: React.RefObject<HTMLDivElement>) => {
 };
 
 
-const MiniAudienceWindow: React.FC<MiniAudienceWindowProps> = ({ config, matchId, onClose }) => {
+const MiniAudienceWindow: React.FC<MiniAudienceWindowProps> = ({ config, matchId, onClose, theme, toggleTheme }) => {
     const windowRef = useRef<HTMLDivElement>(null);
     const { position, onMouseDown } = useDraggable(windowRef);
     const [isMinimized, setIsMinimized] = useState(false);
     const lastSizeRef = useRef({ width: 480, height: 270 });
-    const [theme, setTheme] = useState<Theme>('dark');
-
-    const toggleTheme = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setTheme(t => t === 'dark' ? 'light' : 'dark');
-    };
+    
+    const isDarkTheme = ['dark', 'viola', 'coder'].includes(theme);
 
     const toggleMinimize = () => {
         const element = windowRef.current;
@@ -5053,7 +5053,7 @@ const MiniAudienceWindow: React.FC<MiniAudienceWindowProps> = ({ config, matchId
                 </div>
                 <div className="flex items-center gap-1">
                     <button onClick={toggleTheme} className="p-1 rounded-full hover:bg-dark-border text-dark-text-muted hover:text-dark-text" title="Toggle Theme">
-                        {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
+                        {isDarkTheme ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
                     </button>
                     <button onClick={toggleMinimize} className="p-1 rounded-full hover:bg-dark-border text-dark-text-muted hover:text-dark-text" title={isMinimized ? 'Restore' : 'Minimize'}>
                         {isMinimized ? <RestoreIcon /> : <MinimizeIcon />}
@@ -9742,25 +9742,140 @@ root.render(
 --- END FILE: package.json ---
 
 --- START FILE: README.md ---
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# 🏀 Project: Iskor-App
 
-# Run and deploy your AI Studio app
+<p align="center">
+  <img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/07f82c54-3d99-429b-a63e-affe267072ca" />
+</p>
 
-This contains everything you need to run your app locally.
+<p align="center">
+  <strong>Turning Sports Matches into Legendary Showdowns.</strong>
+</p>
 
-View your app in AI Studio: https://ai.studio/apps/drive/1euNGGnYOEHbrGQW0AzEvMxduXJTRU8YZ
+<p align="center">
+  A versatile, multi-sport scoreboard for Basketball, Soccer, and Volleyball — perfect for organizers, coaches, and streamers.
+</p>
 
-## Run Locally
+---
 
-**Prerequisites:**  Node.js
+## 🏁 Overview
 
+**Iskor-App** is a user-friendly, rule-based sports scoring tool for everyone — from event organizers to casual players. It enables users to manually score matches while automatically following each sport’s official rules.
 
-1. Install dependencies:
-   `npm install`
-2. Run the app:
-   `npm run dev`
+Whether for tournaments, community games, or friendly matches, Iskor-App makes tracking scores organized, fair, and easy.
+
+> ⚙️ Anyone can use this software to manage **manual scoring** in real-time while following each sport’s authentic rules.
+
+> 💬 We’re open to **suggestions and feature ideas** from the community to make the app even better.
+
+---
+
+## 💡 Inspiration
+
+The inspiration came from **Peeeweee**, who wanted a practical, no-fuss scoreboard for casual basketball, soccer, and volleyball games. Many players forget scores during friendly matches without referees — so **Iskor-App** was created to solve that problem. It’s a simple yet reliable solution for bringing structure and fairness to informal sports sessions.
+
+---
+
+## ✨ Key Features
+
+* **🎮 Multi-Sport Support:** Basketball, Soccer, and Volleyball with rule-based scoring logic.
+* **📊 Analytics Dashboard:** Track total matches, top teams, and high-scoring games.
+* **🏅 Team Leaderboard:** See win/loss stats and performance summaries.
+* **⚙️ Match Management:** Create, manage, and revisit your match history with ease.
+* **🎨 Themes:** Choose from four sleek UI styles — Dark, Light, Coder, and Viola.
+* **🧑‍🤝‍🧑 Team Customization:** Create teams with unique names and colors.
+* **🖥️ Audience View:** Display a professional scoreboard for live viewing.
+* **📁 Data Portability:** Export or back up match data and settings via JSON or PDF.
+
+---
+
+## 🖼️ Screenshots & Themes
+
+### 🎨 Themes
+
+|                                                                Viola                                                                |                                                                Coder                                                                |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="1664" height="811" alt="image" src="https://github.com/user-attachments/assets/3292eff2-5868-4724-b571-cb2cb4b5e673" /> | <img width="1471" height="795" alt="image" src="https://github.com/user-attachments/assets/61e1d324-afd7-4dbb-a521-ee565e33569d" /> |
+|                                                                Light                                                                |                                                                 Dark                                                                |
+| <img width="1465" height="770" alt="image" src="https://github.com/user-attachments/assets/6715c6ba-901a-4a61-b318-5822fd37f93a" /> | <img width="1385" height="780" alt="image" src="https://github.com/user-attachments/assets/bad21b98-bea9-4e43-b169-202e5f3314c8" /> |
+
+### 📸 Application in Action
+
+|                                                              Dashboard                                                              |                                                              Analytics                                                              |
+| :---------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: |
+| <img width="1622" height="913" alt="image" src="https://github.com/user-attachments/assets/d06ed878-40b3-4332-9870-377182bdf046" /> | <img width="1458" height="919" alt="image" src="https://github.com/user-attachments/assets/3d573896-c235-4daf-978a-cb5f8e1e29b7" /> |
+|                                                             Match Setup                                                             |                                                            Match History                                                            |
+| <img width="1096" height="766" alt="image" src="https://github.com/user-attachments/assets/5580d017-e484-458f-a29a-89e059815d1d" /> | <img width="1320" height="890" alt="image" src="https://github.com/user-attachments/assets/174a30a9-3b84-40ab-bf87-16114ee2ca7c" /> |
+|                                                               Settings                                                              |                                                           Data Management                                                           |
+| <img width="1175" height="601" alt="image" src="https://github.com/user-attachments/assets/2b276baf-77d7-4d3a-9379-456cc8f748be" /> | <img width="1313" height="679" alt="image" src="https://github.com/user-attachments/assets/920ade8d-3d64-48f1-8878-65bcba7e5416" /> |
+
+---
+
+## 🚀 Getting Started
+
+### 🧩 Requirements
+
+* Node.js **v18.0.0** or higher
+
+### ⚙️ Installation
+
+```bash
+git clone https://github.com/your-username/project-iskor-app.git
+cd project-iskor-app
+npm install
+npm run dev
+```
+
+Then open your browser and go to:
+
+👉 **[http://localhost:3000](http://localhost:3000)**
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** React + TypeScript
+* **Build Tool:** Vite
+* **Styling:** Tailwind CSS
+* **PDF Generation:** jsPDF + jspdf-autotable
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! 💡
+If you’d like to improve or expand **Iskor-App**, follow these steps:
+
+1. **Fork** the repository
+2. **Create a new branch**
+
+   ```bash
+   git checkout -b feature/YourFeatureName
+   ```
+3. **Commit your changes**
+
+   ```bash
+   git commit -m "Add YourFeatureName"
+   ```
+4. **Push your branch**
+
+   ```bash
+   git push origin feature/YourFeatureName
+   ```
+5. **Submit a Pull Request**
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  Built with 🤖 by <strong>Paulo Delgado</strong> · Powered by <strong>React + Vite</strong>
+</p>
 --- END FILE: README.md ---
 
 --- START FILE: src\App.tsx ---
@@ -10941,168 +11056,6 @@ ${JSON.stringify(dataForPrompt, null, 2)}
 
 export default AnalyticsPage;
 --- END FILE: src\components\AnalyticsPage.tsx ---
-
---- START FILE: tempCodeRunnerFile.py ---
-import os
-from pathlib import Path
-
-# --- SCRIPT CONFIGURATION ---
-
-# 1. SET YOUR PROJECT'S ROOT DIRECTORY HERE
-#    - '.' means the script will run on the folder it's placed in.
-#    - You can also use an absolute path, e.g., Path("C:/Users/YourUser/Projects/SPORTS-SCOREBOARD-PRO")
-PROJECT_ROOT = Path('.')
-
-# 2. SET THE NAME OF THE OUTPUT FILE
-OUTPUT_FILENAME = "project_snapshot.txt"
-
-# 3. ADD ANY FILES, FOLDERS, OR EXTENSIONS TO IGNORE
-#    - This script already ignores common folders like '.git' and 'node_modules'.
-#    - Add anything specific to your project you want to exclude.
-#    - Wildcards like '*.log' are supported.
-IGNORE_PATTERNS = {
-    # Version Control & IDE
-    '.git',
-    '.vscode',
-    '.idea',
-
-    # Dependencies & Build Output
-    'node_modules',
-    'dist',
-    'build',
-    'out',
-    'coverage',
-
-    # Environment & System Files
-    '.env',
-    '.env.local',
-    '.env.development.local',
-    '.env.test.local',
-    '.env.production.local',
-    '.DS_Store',
-
-    # Python specific
-    '__pycache__',
-    '*.pyc',
-    '.venv',
-    'venv',
-
-    # Logs and the output file itself
-    '*.log',
-    OUTPUT_FILENAME,
-
-    # Common binary file extensions (content will be skipped)
-    '*.png', '*.jpg', '*.jpeg', '*.gif', '*.ico', '*.svg',
-    '*.pdf', '*.zip', '*.gz', '*.tar', '*.rar',
-    '*.woff', '*.woff2', '*.ttf', '*.eot', '*.otf',
-    '*.mp3', '*.wav', '*.mp4', '*.mov', '*.webm',
-}
-
-def is_ignored(path: Path, root: Path, ignore_patterns: set) -> bool:
-    """
-    Checks if a file or directory should be ignored based on the patterns.
-    """
-    # Check against patterns relative to the project root
-    try:
-        relative_path_str = str(path.relative_to(root))
-        if any(part in ignore_patterns for part in relative_path_str.split(os.sep)):
-            return True
-    except ValueError:
-        pass  # Path is not within the root, should not happen in this script flow
-
-    # Check against file/folder name and glob patterns
-    return (
-        path.name in ignore_patterns or
-        any(path.match(p) for p in ignore_patterns if '*' in p)
-    )
-
-def generate_directory_tree(root_path: Path, ignore_patterns: set, prefix: str = "") -> list:
-    """
-    Generates a list of strings representing the directory tree view.
-    """
-    if not root_path.is_dir():
-        return []
-
-    items = sorted([item for item in root_path.iterdir() if not is_ignored(item, PROJECT_ROOT, ignore_patterns)])
-    tree_lines = []
-    for i, item in enumerate(items):
-        connector = "└── " if i == len(items) - 1 else "├── "
-        tree_lines.append(f"{prefix}{connector}{item.name}")
-        if item.is_dir():
-            extension = "    " if i == len(items) - 1 else "│   "
-            tree_lines.extend(generate_directory_tree(item, ignore_patterns, prefix + extension))
-    return tree_lines
-
-def get_project_files(root_path: Path, ignore_patterns: set) -> list:
-    """
-    Walks the directory and returns a sorted list of file paths to include.
-    """
-    files_to_include = []
-    for root, _, files in os.walk(root_path):
-        root_path_obj = Path(root)
-        if is_ignored(root_path_obj, root_path, ignore_patterns):
-            continue
-        for file in files:
-            file_path = root_path_obj / file
-            if not is_ignored(file_path, root_path, ignore_patterns):
-                files_to_include.append(file_path)
-    return sorted(files_to_include)
-
-def main():
-    """
-    Main function to generate the project snapshot file.
-    """
-    print("Starting project snapshot generation...")
-    
-    output_file_path = PROJECT_ROOT / OUTPUT_FILENAME
-
-    with open(output_file_path, "w", encoding="utf-8") as f:
-        # --- 1. Write the Directory Tree ---
-        f.write("PROJECT DIRECTORY TREE (Filtered View)\n")
-        f.write("======================================================================\n")
-        
-        # Display the root folder name at the top of the tree
-        f.write(f"{PROJECT_ROOT.resolve().name}\n")
-        
-        tree_lines = generate_directory_tree(PROJECT_ROOT, IGNORE_PATTERNS)
-        f.write("\n".join(tree_lines))
-        f.write("\n\n\n") # Add spacing before file contents
-
-        # --- 2. Write File Contents ---
-        project_files = get_project_files(PROJECT_ROOT, IGNORE_PATTERNS)
-        
-        print(f"Found {len(project_files)} files to include.")
-
-        for file_path in project_files:
-            try:
-                relative_path = file_path.relative_to(PROJECT_ROOT)
-                print(f"  -> Processing: {relative_path}")
-                
-                f.write(f"--- START FILE: {relative_path} ---\n")
-                
-                # Read file content with robust error handling
-                try:
-                    content = file_path.read_text(encoding="utf-8", errors="ignore")
-                    f.write(content)
-                    # Ensure a newline at the end of the file content
-                    if content and not content.endswith('\n'):
-                        f.write('\n')
-                except Exception as e:
-                    f.write(f"*** Error reading file: {e} ***\n")
-                    
-                f.write(f"--- END FILE: {relative_path} ---\n\n")
-            except Exception as e:
-                print(f"  -> ERROR processing file {file_path}: {e}")
-
-
-    print("----------------------------------------------------------------------")
-    print(f"Success! Project snapshot created at: {output_file_path.resolve()}")
-    print("You can now copy the contents of this file.")
-    print("----------------------------------------------------------------------")
-
-if __name__ == "__main__":
-    main()
---- END FILE: tempCodeRunnerFile.py ---
 
 --- START FILE: tsconfig.json ---
 {

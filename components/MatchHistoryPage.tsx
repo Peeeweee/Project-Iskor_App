@@ -13,6 +13,7 @@ const MatchHistoryCard: React.FC<{ match: Match; onClick: () => void; }> = ({ ma
     const isTie = match.finalScoreA === match.finalScoreB;
     const isAWinner = (match.finalScoreA ?? 0) > (match.finalScoreB ?? 0);
     const isBWinner = (match.finalScoreB ?? 0) > (match.finalScoreA ?? 0);
+    const scoreDifference = Math.abs((match.finalScoreA ?? 0) - (match.finalScoreB ?? 0));
 
     return (
         <button 
@@ -26,7 +27,10 @@ const MatchHistoryCard: React.FC<{ match: Match; onClick: () => void; }> = ({ ma
                     <SportIcon sport={match.sport} className="h-5 w-5" />
                     <span>{match.sport}</span>
                 </div>
-                <span>{getDateFromId(match.id)}</span>
+                <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs px-2 py-1 bg-light-card-secondary dark:bg-dark-card-secondary rounded-full">{match.gameMode === 'score' ? `Target: ${match.targetScore}` : `${match.durationMinutes} min`}</span>
+                    <span>{getDateFromId(match.id)}</span>
+                </div>
             </div>
 
             {/* Scores */}
@@ -61,7 +65,7 @@ const MatchHistoryCard: React.FC<{ match: Match; onClick: () => void; }> = ({ ma
                 ) : (
                     <div className="flex items-center gap-2 text-yellow-500">
                         <TrophyIcon className="h-5 w-5" />
-                        <span>Winner: {isAWinner ? match.teamA.name : match.teamB.name}</span>
+                        <span>Winner: {isAWinner ? match.teamA.name : match.teamB.name} by {scoreDifference}</span>
                     </div>
                 )}
             </div>

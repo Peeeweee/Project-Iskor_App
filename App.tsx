@@ -14,6 +14,7 @@ import MatchHistoryPage from './components/MatchHistoryPage';
 import TeamsPage from './components/TeamsPage';
 import { TEAM_COLORS } from './constants';
 import { getDateFromId } from './utils';
+import './src/animations.css';
 
 const initialMatches: Match[] = [
   { id: '1', sport: Sport.Basketball, teamA: { name: 'Lakers', color: '#FDB927' }, teamB: { name: 'Warriors', color: '#006BB6' }, status: 'In Progress', durationMinutes: 12, durationSeconds: 0, periods: 4, gameMode: 'time' },

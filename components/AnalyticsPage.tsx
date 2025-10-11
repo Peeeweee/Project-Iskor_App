@@ -8,11 +8,14 @@ import ChartBarIcon from './icons/ChartBarIcon';
 import TeamDetailModal from './TeamDetailModal';
 import DonutChart from './charts/DonutChart';
 import BarChart from './charts/BarChart';
+import HistogramChart from './charts/HistogramChart';
 import TotalMatchesModal from './TotalMatchesModal';
 import MostPlayedSportModal from './MostPlayedSportModal';
 import HighestScoringGamesModal from './HighestScoringGamesModal';
 import SportIcon from './SportIcon';
 import MostDecisiveVictoryModal from './MostDecisiveVictoryModal';
+import ChartModal from './ChartModal';
+import MatchesByDifferentialModal from './MatchesByDifferentialModal';
 
 
 interface AnalyticsPageProps {
@@ -111,6 +114,8 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ matches }) => {
     const [isMostPlayedSportModalOpen, setIsMostPlayedSportModalOpen] = useState(false);
     const [isHighestScoringGamesModalOpen, setIsHighestScoringGamesModalOpen] = useState(false);
     const [isMostDecisiveVictoryModalOpen, setIsMostDecisiveVictoryModalOpen] = useState(false);
+    const [enlargedChart, setEnlargedChart] = useState<{ title: string; chart: React.ReactNode } | null>(null);
+    const [matchesByDiffModal, setMatchesByDiffModal] = useState<{ label: string; matches: (Match & { finalScoreA: number; finalScoreB: number; })[] } | null>(null);
 
     
     const allFinishedMatches = useMemo<(Match & { finalScoreA: number; finalScoreB: number; })[]>(() => 
@@ -237,6 +242,47 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ matches }) => {
             selectedSport === 'All' ? scoreBasedMatches : scoreBasedMatches.filter(m => m.sport === selectedSport)
         );
 
+        const bins: Record<string, { value: number; matches: (Match & { finalScoreA: number; finalScoreB: number; })[] }> = {
+            'Ties': { value: 0, matches: [] },
+            '1-2': { value: 0, matches: [] },
+            '3-4': { value: 0, matches: [] },
+            '5-6': { value: 0, matches: [] },
+            '7-8': { value: 0, matches: [] },
+            '9-10': { value: 0, matches: [] },
+            '11+': { value: 0, matches: [] },
+        };
+
+        finishedMatches.forEach(match => {
+            const diff = Math.abs(match.finalScoreA - match.finalScoreB);
+            
+            let bin: string | null = null;
+            if (diff === 0) {
+                bin = 'Ties';
+            } else if (diff <= 2) {
+                bin = '1-2';
+            } else if (diff <= 4) {
+                bin = '3-4';
+            } else if (diff <= 6) {
+                bin = '5-6';
+            } else if (diff <= 8) {
+                bin = '7-8';
+            } else if (diff <= 10) {
+                bin = '9-10';
+            } else {
+                bin = '11+';
+            }
+
+            if (bin) {
+                bins[bin].value++;
+                bins[bin].matches.push(match);
+            }
+        });
+
+        const histogramData = Object.entries(bins).map(([label, data]) => ({
+            label,
+            value: data.value,
+            matches: data.matches,
+        }));
 
         return { 
             kpis: {mostPlayedSportName, highestScoringGame, mostDecisiveVictory}, 
@@ -250,10 +296,18 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ matches }) => {
             mostDecisiveVictoriesBySportScore: calculateMostDecisive(scoreBasedMatches),
             timeBasedLeaderboard,
             scoreBasedLeaderboard,
+            histogramData,
         };
 
     }, [allFinishedMatches, finishedMatches, selectedSport]);
     
+    const handleHistogramClick = (label: string) => {
+        if (!stats) return;
+        const binData = stats.histogramData.find(bin => bin.label === label);
+        if (binData && binData.matches.length > 0) {
+            setMatchesByDiffModal(binData as { label: string; matches: (Match & { finalScoreA: number; finalScoreB: number; })[] });
+        }
+    };
 
     const renderContent = () => {
         if (!stats) {
@@ -414,8 +468,13 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ matches }) => {
                          </div>
                     </div>
                     <div className="xl:col-span-2 space-y-8 animate-slide-in-bottom" style={{animationDelay: '600ms'}}>
-                        {selectedSport === 'All' && <DonutChart data={donutChartData} title="Sport Popularity" />}
-                        <BarChart data={barChartData} title={`Top 5 Teams (by Wins)${selectedSport !== 'All' ? ` in ${selectedSport}` : ''}`} />
+                        {selectedSport === 'All' && <DonutChart data={donutChartData} title="Sport Popularity" onClick={() => setEnlargedChart({ title: 'Sport Popularity', chart: <DonutChart data={donutChartData} title="" /> })} />}
+                        <BarChart data={barChartData} title={`Top 5 Teams (by Wins)${selectedSport !== 'All' ? ` in ${selectedSport}` : ''}`} onClick={() => setEnlargedChart({ title: `Top 5 Teams (by Wins)${selectedSport !== 'All' ? ` in ${selectedSport}` : ''}`, chart: <BarChart data={barChartData} title="" /> })} />
+                        <HistogramChart 
+                            data={stats.histogramData} 
+                            title="Score Differentials" 
+                            onClick={handleHistogramClick}
+                        />
                     </div>
                 </div>
             </div>
@@ -479,6 +538,20 @@ const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ matches }) => {
                     mostDecisiveVictoriesBySportTime={stats.mostDecisiveVictoriesBySportTime}
                     mostDecisiveVictoriesBySportScore={stats.mostDecisiveVictoriesBySportScore}
                     onClose={() => setIsMostDecisiveVictoryModalOpen(false)}
+                />
+            )}
+
+            {enlargedChart && (
+                <ChartModal title={enlargedChart.title} onClose={() => setEnlargedChart(null)}>
+                    {enlargedChart.chart}
+                </ChartModal>
+            )}
+
+            {matchesByDiffModal && (
+                <MatchesByDifferentialModal 
+                    label={matchesByDiffModal.label}
+                    matches={matchesByDiffModal.matches}
+                    onClose={() => setMatchesByDiffModal(null)}
                 />
             )}
         </div>

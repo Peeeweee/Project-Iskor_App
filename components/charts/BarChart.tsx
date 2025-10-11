@@ -8,16 +8,20 @@ interface BarChartProps {
         values: Array<{ value: number; color: string; label: string; }>;
     }>;
     title: string;
+    onClick?: () => void;
 }
 
-const BarChart: React.FC<BarChartProps> = ({ data, title }) => {
+const BarChart: React.FC<BarChartProps> = ({ data, title, onClick }) => {
 
     const legendItems = data.length > 0
         ? data[0].values.map(v => ({ label: v.label, color: v.color }))
         : [];
 
     return (
-        <div className="bg-light-card dark:bg-dark-card p-6 rounded-xl shadow-sm">
+        <div 
+            className={`bg-light-card dark:bg-dark-card p-6 rounded-xl shadow-sm ${onClick ? 'cursor-pointer' : ''}`}
+            onClick={onClick}
+        >
             <h2 className="text-xl font-bold mb-4">{title}</h2>
             <div className="space-y-4">
                 {data.map((d, index) => {
