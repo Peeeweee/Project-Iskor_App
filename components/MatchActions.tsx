@@ -44,7 +44,7 @@ const MatchActions: React.FC<MatchActionsProps> = ({
 }) => {
     return (
         <div className="mt-6 flex justify-center space-x-4">
-            {matchConfig.gameMode !== 'score' && gameState.currentPeriod === matchConfig.periods && !isFinished && (
+            {matchConfig.gameMode !== 'score' && gameState.currentPeriod >= matchConfig.periods && !isFinished && (
                 <ControlButton onClick={actions.finishMatchManually} className="bg-green-600 hover:bg-green-500 text-white flex gap-2 px-6 py-3 text-lg" title="Finish Match">
                     <CheckIcon />
                     Finish Match

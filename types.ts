@@ -63,6 +63,8 @@ export interface GameState {
   message?: string | null; // For overlays
   periodScores: Array<{ a: number; b: number }>;
   notification?: { message: string };
+  isOvertimeModalVisible?: boolean;
+  overtimePeriods?: string[];
 }
 
 export type Theme = 'light' | 'dark' | 'coder' | 'viola';
@@ -107,4 +109,5 @@ export type Match = MatchConfig & {
   finalScoreA?: number;
   finalScoreB?: number;
   periodScores?: Array<{ a: number; b: number }>;
+  overtimePeriods?: string[];
 };

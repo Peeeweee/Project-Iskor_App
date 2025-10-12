@@ -84,6 +84,13 @@ export const useGameLogic = (config: MatchConfig | null, matchId: string | null)
         }
 
         if (currentState.currentPeriod >= config.periods) {
+            if (config.sport === Sport.Basketball && currentState.teamA.score === currentState.teamB.score) {
+                return {
+                    ...currentState,
+                    isOvertimeModalVisible: true,
+                    periodScores: updatedPeriodScores,
+                };
+            }
             // End of Match
             if (config.sport === Sport.Volleyball && newSetScores) {
                 const winner: 'A' | 'B' | 'TIE' = newSetScores.a > newSetScores.b ? 'A' : (newSetScores.b > newSetScores.a ? 'B' : 'TIE');
@@ -516,6 +523,34 @@ export const useGameLogic = (config: MatchConfig | null, matchId: string | null)
         });
     }, [handleEndOfPeriod, pause, config, setGameState]);
 
+    const startOvertime = useCallback(() => {
+        setGameState(prev => {
+            if (!config || !prev) return prev;
+
+            const overtimeDuration = (config.durationMinutes * 60 + config.durationSeconds) * 0.5;
+            resetClock(overtimeDuration);
+            start();
+
+            const nextOvertimeNumber = (prev.overtimePeriods?.length || 0) + 1;
+
+            return {
+                ...clearNotification(prev),
+                currentPeriod: prev.currentPeriod + 1,
+                status: GameStatus.InProgress,
+                message: null,
+                isOvertimeModalVisible: false,
+                overtimePeriods: [...(prev.overtimePeriods || []), `OT${nextOvertimeNumber}`],
+            };
+        });
+    }, [config, resetClock, start, setGameState]);
+
+    const finishAsDraw = useCallback(() => {
+        setGameState(prev => {
+            if (!prev) return prev;
+            return handleEndOfPeriod({ ...prev, isOvertimeModalVisible: false });
+        });
+    }, [handleEndOfPeriod, setGameState]);
+
     const startAction = () => {
         if (gameState?.status === GameStatus.PeriodBreak) {
             startNextPeriod();
@@ -561,7 +596,9 @@ export const useGameLogic = (config: MatchConfig | null, matchId: string | null)
         finishMatchManually,
         undo,
         redo,
-    }), [startAction, pauseClock, reset, updateScore, setPauseReason, startNextPeriod, goToNextPeriod, goToPreviousPeriod, finishMatchManually, undo, redo]);
+        startOvertime,
+        finishAsDraw,
+    }), [startAction, pauseClock, reset, updateScore, setPauseReason, startNextPeriod, goToNextPeriod, goToPreviousPeriod, finishMatchManually, undo, redo, startOvertime, finishAsDraw]);
 
     return { gameState, time, isRunning, actions, canUndo, canRedo };
 };

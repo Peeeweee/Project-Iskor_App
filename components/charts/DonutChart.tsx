@@ -3,9 +3,10 @@ import React, { useState, useEffect } from 'react';
 interface DonutChartProps {
     data: Array<{ label: string; value: number; color: string }>;
     title: string;
+    onClick?: () => void;
 }
 
-const DonutChart: React.FC<DonutChartProps> = ({ data, title }) => {
+const DonutChart: React.FC<DonutChartProps> = ({ data, title, onClick }) => {
     const [isMounted, setIsMounted] = useState(false);
     const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
@@ -25,7 +26,10 @@ const DonutChart: React.FC<DonutChartProps> = ({ data, title }) => {
     let cumulativePct = 0;
 
     return (
-        <div className="bg-light-card dark:bg-dark-card p-6 rounded-xl shadow-sm">
+        <div 
+            className={`bg-light-card dark:bg-dark-card p-6 rounded-xl shadow-sm ${onClick ? 'cursor-pointer' : ''}`}
+            onClick={onClick}
+        >
             <h2 className="text-xl font-bold mb-4">{title}</h2>
             <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="relative flex-shrink-0" style={{ width: size, height: size }}>

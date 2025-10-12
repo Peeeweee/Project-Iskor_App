@@ -12,6 +12,8 @@ import MatchResult from './MatchResult';
 import FullScreenIcon from './icons/FullScreenIcon';
 import DashboardIcon from './icons/DashboardIcon';
 
+import OvertimeModal from './OvertimeModal';
+
 interface MatchViewProps {
     match: Match;
     matchConfig: MatchConfig;
@@ -32,6 +34,8 @@ interface MatchViewProps {
         finishMatchManually: () => void;
         undo: () => void;
         redo: () => void;
+        startOvertime: () => void;
+        finishAsDraw: () => void;
     };
     onLeaveMatch: () => void;
     activeMatchId: string;
@@ -357,6 +361,12 @@ const MatchView: React.FC<MatchViewProps> = (props) => {
 
     return (
         <div className="p-4 md:p-6 w-full">
+            {gameState.isOvertimeModalVisible && (
+                <OvertimeModal 
+                    onAddOvertime={actions.startOvertime}
+                    onFinishAsDraw={actions.finishAsDraw}
+                />
+            )}
             {showResetConfirm && (
                 <ConfirmationModal 
                   title="Reset Match?"

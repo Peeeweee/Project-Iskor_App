@@ -54,19 +54,22 @@ const BoxScore: React.FC<BoxScoreProps> = ({ gameState, matchConfig }) => {
 
     // Original logic for time-based games (live or finished)
     const periodLabel = matchConfig.sport === Sport.Volleyball ? 'S' : matchConfig.sport === Sport.Soccer ? 'H' : 'Q';
-    const periods = Array.from({ length: matchConfig.periods }, (_, i) => i + 1);
+    const regularPeriods = Array.from({ length: matchConfig.periods }, (_, i) => i + 1);
+    const overtimePeriods = gameState.overtimePeriods || [];
+    const allPeriods = [...regularPeriods, ...overtimePeriods];
 
-    const getScoreForPeriod = (team: 'A' | 'B', period: number) => {
+    const getScoreForPeriod = (team: 'A' | 'B', period: number | string) => {
         const teamKey = team === 'A' ? 'a' : 'b';
         const periodScores = gameState.periodScores || [];
+        const periodIndex = typeof period === 'number' ? period - 1 : regularPeriods.length + overtimePeriods.indexOf(period);
 
         // For finished games OR past periods, the periodScores array is the source of truth.
-        if (periodScores[period - 1] !== undefined) {
-            return periodScores[period - 1][teamKey];
+        if (periodScores[periodIndex] !== undefined) {
+            return periodScores[periodIndex][teamKey];
         }
         
         // For the current, live period, calculate the score.
-        if (period === gameState.currentPeriod && gameState.status !== GameStatus.Finished) {
+        if (periodIndex + 1 === gameState.currentPeriod && gameState.status !== GameStatus.Finished) {
             const sumOfPreviousScores = periodScores.reduce((sum, score) => sum + (score?.[teamKey] || 0), 0);
             return gameState[team === 'A' ? 'teamA' : 'teamB'].score - sumOfPreviousScores;
         }
@@ -84,10 +87,10 @@ const BoxScore: React.FC<BoxScoreProps> = ({ gameState, matchConfig }) => {
                 <td className="p-3 font-bold text-left sticky left-0 bg-light-card dark:bg-dark-card" style={{ color: teamData.color }}>
                     {teamData.name}
                 </td>
-                {periods.map(p => (
+                {allPeriods.map((p, index) => (
                     <td 
                       key={p} 
-                      className={`p-3 text-center font-mono font-semibold ${p === lastFinalizedPeriod ? 'animate-[slide-in-left_0.5s_ease-out]' : ''}`}
+                      className={`p-3 text-center font-mono font-semibold ${index + 1 === lastFinalizedPeriod ? 'animate-[slide-in-left_0.5s_ease-out]' : ''}`}
                     >
                         {getScoreForPeriod(team, p)}
                     </td>
@@ -104,8 +107,8 @@ const BoxScore: React.FC<BoxScoreProps> = ({ gameState, matchConfig }) => {
                     <thead>
                         <tr className="bg-light-card-secondary dark:bg-dark-card-secondary text-light-text dark:text-dark-text">
                             <th className="p-3 text-sm font-bold uppercase text-left sticky left-0 bg-light-card-secondary dark:bg-dark-card-secondary">Team</th>
-                            {periods.map(p => (
-                                <th key={p} className="p-3 text-sm font-bold uppercase">{`${periodLabel}${p}`}</th>
+                            {allPeriods.map(p => (
+                                <th key={p} className="p-3 text-sm font-bold uppercase">{typeof p === 'number' ? `${periodLabel}${p}` : p}</th>
                             ))}
                             <th className="p-3 text-sm font-bold uppercase">Total</th>
                         </tr>
